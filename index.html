@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinClear — Know your next move</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12203A;
+    --ink-soft:#2A3B5C;
+    --paper:#FBF8F1;
+    --paper-line:#E4DFD0;
+    --growth:#2F7A4D;
+    --growth-soft:#E7F2EA;
+    --debt:#B5473A;
+    --debt-soft:#F7E9E6;
+    --gold:#C89B3C;
+    --text:#1B2430;
+    --muted:#5B6472;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text);
+    font-family:'IBM Plex Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    max-width:1100px;
+    margin:0 auto;
+    padding:64px 24px 48px;
+    color:var(--paper);
+  }
+  .hero-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .hero-eyebrow::before{
+    content:"";
+    width:22px;height:1px;
+    background:var(--gold);
+    display:inline-block;
+  }
+  .hero h1{
+    font-size:clamp(34px,6vw,58px);
+    font-weight:600;
+    line-height:1.05;
+    max-width:820px;
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--gold);
+    font-weight:500;
+  }
+  .hero p.lede{
+    font-size:18px;
+    line-height:1.6;
+    color:#C9D2E3;
+    max-width:560px;
+    margin-top:22px;
+  }
+  .fork{
+    margin-top:44px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .fork-side{
+    background:rgba(255,255,255,0.03);
+    padding:22px 22px;
+  }
+  .fork-side.debt-side{border-left:3px solid var(--debt);}
+  .fork-side.growth-side{border-left:3px solid var(--growth);}
+  .fork-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:#8B96AC;
+    margin-bottom:8px;
+  }
+  .fork-rate{
+    font-family:'Fraunces',serif;
+    font-size:30px;
+    font-weight:600;
+  }
+  .debt-side .fork-rate{color:#E38A7C;}
+  .growth-side .fork-rate{color:#7FC79A;}
+  .fork-side p{
+    font-size:13.5px;
+    color:#AEB8CC;
+    margin:8px 0 0;
+    line-height:1.5;
+  }
+
+  /* ---------- PATH SELECTOR ---------- */
+  .paths{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 24px 64px;
+  }
+  .paths h2{
+    color:var(--paper);
+    font-size:22px;
+    font-weight:500;
+    margin-bottom:6px;
+  }
+  .paths .sub{color:#8B96AC;font-size:14px;margin-bottom:24px;}
+  .path-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .path-card{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:10px;
+    padding:20px;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .path-card:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.3);}
+  .path-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:10px;}
+  .path-card h3{color:var(--paper);font-size:17px;font-weight:500;margin-bottom:6px;}
+  .path-card p{font-size:13px;color:#9AA5B9;line-height:1.5;margin:0;}
+  .path-card .tools{margin-top:12px;font-size:12px;color:#7FC79A;font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- LEDGER (tool section) ---------- */
+  .ledger{
+    background:var(--paper);
+    border-radius:18px 18px 0 0;
+    max-width:1100px;
+    margin:0 auto;
+    padding:44px 24px 80px;
+  }
+  .ledger-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:16px;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .ledger-head h2{font-size:24px;}
+  .ledger-head .stamp-hint{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+
+  .tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:28px;
+  }
+  .tab-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:9px 14px;
+    border-radius:20px;
+    border:1px solid var(--paper-line);
+    background:transparent;
+    color:var(--muted);
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tab-btn.active{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+
+  .tool{display:none;}
+  .tool.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .tool-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:32px;
+  }
+  .tool-desc{
+    font-size:13.5px;
+    color:var(--muted);
+    line-height:1.6;
+    margin-bottom:20px;
+  }
+  .field{
+    margin-bottom:16px;
+  }
+  .field label{
+    display:flex;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .field label .val{color:var(--gold);font-weight:600;}
+  input[type="range"]{
+    width:100%;
+    accent-color:var(--ink);
+  }
+  input[type="number"], select{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    background:#fff;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    color:var(--text);
+  }
+  input[type="number"]:focus, select:focus, input[type="range"]:focus{
+    outline:2px solid var(--ink);
+    outline-offset:1px;
+  }
+
+  .result-panel{
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:12px;
+    padding:26px;
+    position:relative;
+    overflow:hidden;
+  }
+  .result-panel::before{
+    content:"";
+    position:absolute;
+    top:-40%;left:-10%;
+    width:220px;height:220px;
+    background:radial-gradient(circle, rgba(200,155,60,0.18), transparent 70%);
+  }
+  .result-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:10px 0;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+    font-size:13px;
+  }
+  .result-row:last-child{border-bottom:none;}
+  .result-row .label{color:#9AA5B9;}
+  .result-row .amount{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:15px;}
+  .result-hero{
+    text-align:center;
+    padding:10px 0 22px;
+    border-bottom:1px dashed rgba(255,255,255,0.2);
+    margin-bottom:6px;
+  }
+  .result-hero .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+  .result-hero .big{
+    font-family:'Fraunces',serif;
+    font-size:36px;
+    font-weight:600;
+    margin-top:6px;
+  }
+  .stamp{
+    position:absolute;
+    bottom:16px;right:16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    padding:7px 12px;
+    border:1.5px solid var(--growth);
+    color:#7FC79A;
+    border-radius:4px;
+    transform:rotate(-6deg);
+    opacity:0.9;
+  }
+  .stamp.warn{border-color:var(--debt);color:#E38A7C;}
+
+  .verdict{
+    margin-top:16px;
+    padding:14px 16px;
+    border-radius:8px;
+    font-size:13.5px;
+    line-height:1.55;
+  }
+  .verdict.good{background:var(--growth-soft);color:#1E5A37;border-left:3px solid var(--growth);}
+  .verdict.warn{background:var(--debt-soft);color:#7A2E23;border-left:3px solid var(--debt);}
+
+  table.schedule{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    margin-top:14px;
+  }
+  table.schedule th{
+    text-align:left;
+    color:var(--muted);
+    font-weight:500;
+    padding:6px 8px;
+    border-bottom:1px solid var(--paper-line);
+    text-transform:uppercase;
+    font-size:10.5px;
+    letter-spacing:.05em;
+  }
+  table.schedule td{
+    padding:6px 8px;
+    border-bottom:1px solid var(--paper-line);
+  }
+  .schedule-wrap{max-height:220px;overflow-y:auto;margin-top:6px;border:1px solid var(--paper-line);border-radius:8px;}
+
+  footer{
+    background:var(--paper);
+    text-align:center;
+    padding:0 24px 40px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--muted);
+    max-width:1100px;
+    margin:0 auto;
+  }
+  footer .disclaimer{
+    max-width:560px;
+    margin:0 auto 14px;
+    line-height:1.6;
+  }
+
+  @media (max-width:760px){
+    .tool-grid{grid-template-columns:1fr;}
+    .path-grid{grid-template-columns:1fr;}
+    .fork{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-eyebrow">FinClear · Financial planning, sequenced</div>
+  <h1>Don't just calculate.<br>Know what to do <em>next.</em></h1>
+  <p class="lede">Most tools give you a number. FinClear compares your debt rate against your realistic returns and tells you where every rupee should go first — then runs the calculator for it.</p>
+
+  <div class="fork">
+    <div class="fork-side debt-side">
+      <div class="fork-label">If you're paying this on debt</div>
+      <div class="fork-rate">~30%<span class="mono" style="font-size:14px;color:#8B96AC;">/yr</span></div>
+      <p>Typical personal loan or informal debt at 2.5%/month compounds faster than almost any investment can outpace.</p>
+    </div>
+    <div class="fork-side growth-side">
+      <div class="fork-label">If you're earning this from SIP</div>
+      <div class="fork-rate">~11%<span class="mono" style="font-size:14px;color:#8B96AC;">/yr</span></div>
+      <p>Long-term Nifty-tracking index fund average. Solid — but it can't out-earn 30% debt. Clear the debt first.</p>
+    </div>
+  </div>
+</section>
+
+<section class="paths">
+  <h2>What's your situation?</h2>
+  <div class="sub">Pick one — it'll jump you to the tools that actually apply to you.</div>
+  <div class="path-grid">
+    <div class="path-card" onclick="jumpTo('sip')">
+      <div class="path-num">PATH 01</div>
+      <h3>Fixed income, no debt</h3>
+      <p>You're earning steadily and want your money working — investing, tracking growth, and keeping tax in check.</p>
+      <div class="tools">SIP · ROI · Income Tax · Tax Saving</div>
+    </div>
+    <div class="path-card" onclick="jumpTo('dti')">
+      <div class="path-num">PATH 02</div>
+      <h3>Income, but carrying debt</h3>
+      <p>Debt is eating into what you earn. Know your ratio, and get a real month-by-month payoff plan.</p>
+      <div class="tools">Debt-to-Income · Payoff Planner</div>
+    </div>
+    <div class="path-card" onclick="jumpTo('swp')">
+      <div class="path-num">PATH 03</div>
+      <h3>Living off savings</h3>
+      <p>You've built a corpus and now need to draw from it sustainably without running it dry.</p>
+      <div class="tools">SWP Advisor</div>
+    </div>
+  </div>
+</section>
+
+<section class="ledger">
+  <div class="ledger-head">
+    <h2>The Calculators</h2>
+    <div class="stamp-hint">All math runs on your device · nothing is stored</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="sip">SIP Calculator</button>
+    <button class="tab-btn" data-tab="swp">SWP Advisor</button>
+    <button class="tab-btn" data-tab="roi">ROI Calculator</button>
+    <button class="tab-btn" data-tab="tax">Income Tax</button>
+    <button class="tab-btn" data-tab="taxsave">Tax Saving Advisor</button>
+    <button class="tab-btn" data-tab="dti">Debt-to-Income</button>
+    <button class="tab-btn" data-tab="payoff">Debt Payoff Planner</button>
+  </div>
+
+  <!-- SIP -->
+  <div class="tool active" id="sip">
+    <div class="tool-desc">Estimate what a monthly SIP grows into, with an optional yearly step-up.</div>
+    <div class="tool-grid">
+      <div>
+        <div class="field"><label>Monthly investment <span class="val mono" id="sip_amt_v">₹1,000</span></label>
+          <input type="range" id="sip_amt" min="500" max="50000" step="500" value="1000"></div>
+        <div class="field"><label>Expected annual return <span class="val mono" id="sip_ret_v">11%</span></label>
+          <input type="range" id="sip_ret" min="4" max="20" step="0.5" value="11"></div>
+        <div class="field"><label>Duration (years) <span class="val mono" id="sip_yrs_v">10</span></label>
+          <input type="range" id="sip_yrs" min="1" max="30" step="1" value="10"></div>
+        <div class="field"><label>Yearly step-up <span class="val mono" id="sip_step_v">0%</span></label>
+          <input type="range" id="sip_step" min="0" max="25" step="1" value="0"></div>
+      </div>
+      <div class="result-panel">
+        <div class="result-hero"><div class="tag">Maturity value</div><div class="big mono" id="sip_out_mat">₹0</div></div>
+        <div class="result-row"><span class="label">Total invested</span><span class="amount" id="sip_out_inv">₹0</span></div>
+        <div class="result-row"><span class="label">Wealth gained</span><span class="amount" id="sip_out_gain">₹0</span></div>
+        <div class="stamp">COMPOUNDING</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SWP -->
+  <div class="tool" id="swp">
+    <div class="tool-desc">Check how long a corpus lasts under a fixed monthly withdrawal — or find the safe withdrawal amount.</div>
+    <div class="tool-grid">
+      <div>
+        <div class="field"><label>Current corpus <span class="val mono" id="swp_corp_v">₹500,000</span></label>
+          <input type="range" id="swp_corp" min="50000" max="5000000" step="50000" value="500000"></div>
+        <div class="field"><label>Monthly withdrawal <span class="val mono" id="swp_wd_v">₹5,000</span></label>
+          <input type="range" id="swp_wd" min="1000" max="100000" step="1000" value="5000"></div>
+        <div class="field"><label>Expected annual return <span class="val mono" id="swp_ret_v">8%</span></label>
+          <input type="range" id="swp_ret" min="2" max="15" step="0.5" value="8"></div>
+      </div>
+      <div class="result-panel">
+        <div class="result-hero"><div class="tag">Corpus lasts</div><div class="big mono" id="swp_out_years">—</div></div>
+        <div class="result-row"><span class="label">Total withdrawn</span><span class="amount" id="swp_out_total">₹0</span></div>
+        <div class="result-row"><span class="label">Growth earned during drawdown</span><span class="amount" id="swp_out_growth">₹0</span></div>
+        <div class="stamp">DRAWDOWN</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROI -->
+  <div class="tool" id="roi">
+    <div class="tool-desc">Simple return and annualised (CAGR) return between an entry and exit value.</div>
+    <div class="tool-grid">
+      <div>
+        <div class="field"><label>Amount invested</label><input type="number" id="roi_in" value="100000"></div>
+        <div class="field"><label>Current / exit value</label><input type="number" id="roi_out" value="145000"></div>
+        <div class="field"><label>Holding period (years)</label><input type="number" id="roi_yrs" value="3" step="0.1"></div>
+      </div>
+      <div class="result-panel">
+        <div class="result-hero"><div class="tag">CAGR</div><div class="big mono" id="roi_out_cagr">0%</div></div>
+        <div class="result-row"><span class="label">Absolute return</span><span class="amount" id="roi_out_abs">0%</span></div>
+        <div class="result-row"><span class="label">Profit</span><span class="amount" id="roi_out_profit">₹0</span></div>
+        <div class="stamp">RETURNS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Income Tax -->
+  <div class="tool" id="tax">
+    <div class="tool-desc">Rough estimate under the new regime slabs (FY 2025-26). For guidance only — always confirm with a CA or the official portal before filing.</div>
+    <div class="tool-grid">
+      <div>
+        <div class="field"><label>Annual income (gross)</label><input type="number" id="tax_income" value="800000"></div>
+      </div>
+      <div class="result-panel">
+        <div class="result-hero"><div class="tag">Estimated tax</div><div class="big mono" id="tax_out_amt">₹0</div></div>
+        <div class="result-row"><span class="label">Effective rate</span><span class="amount" id="tax_out_rate">0%</span></div>
+        <div class="result-row"><span class="label">In-hand (annual)</span><span class="amount" id="tax_out_inhand">₹0</span></div>
+        <div class="stamp">NEW REGIME</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tax Saving Advisor -->
+  <div class="tool" id="taxsave">
+    <div class="tool-desc">A quick check on how much headroom you still have under common old-regime deductions. This assumes old regime, where these sections apply.</div>
+    <div class="tool-grid">
+      <div>
+        <div class="field"><label>Used under 80C (of ₹1,50,000 limit)</label><input type="number" id="ts_80c" value="0"></div>
+        <div class="field"><label>Used under 80D — health insurance (of ₹25,000 limit)</label><input type="number" id="ts_80d" value="0"></div>
+        <div class="field"><label>NPS contribution 80CCD(1B) (of ₹50,000 limit)</label><input type="number" id="ts_nps" value="0"></div>
+      </div>
+      <div class="result-panel">
+        <div class="result-hero"><div class="tag">Unused deduction room</div><div class="big mono" id="ts_out_total">₹0</div></div>
+        <div class="result-row"><span class="label">80C remaining</span><span class="amount" id="ts_out_80c">₹0</span></div>
+        <div class="result-row"><span class="label">80D remaining</span><span class="amount" id="ts_out_80d">₹0</span></div>
+        <div class="result-row"><span class="label">NPS 80CCD(1B) remaining</span><span class="amount" id="ts_out_nps">₹0</span></div>
+        <div class="stamp">OLD REGIME</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debt to Income -->
+  <div class="tool" id="dti">
+    <div class="tool-desc">Debt-to-Income ratio — how much of your monthly income goes toward debt repayment. Below 20% is healthy, 20–35% is manageable, above 35% needs a plan.</div>
+    <div class="tool-grid">
+      <div>
+        <div class="field"><label>Monthly income</label><input type="number" id="dti_income" value="15000"></div>
+        <div class="field"><label>Monthly debt payment</label><input type="number" id="dti_debt" value="6000"></div>
+      </div>
+      <div class="result-panel">
+        <div class="result-hero"><div class="tag">Your DTI ratio</div><div class="big mono" id="dti_out_ratio">0%</div></div>
+        <div id="dti_verdict_slot"></div>
+        <div class="stamp" id="dti_stamp">HEALTHY</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debt Payoff Planner -->
+  <div class="tool" id="payoff">
+    <div class="tool-desc">Month-by-month payoff schedule, and whether it's smarter to clear this debt before running a SIP — based on your debt's interest rate vs. your expected investment return.</div>
+    <div class="tool-grid">
+      <div>
+        <div class="field"><label>Outstanding debt</label><input type="number" id="pf_debt" value="43000"></div>
+        <div class="field"><label>Monthly interest rate <span class="val mono" id="pf_rate_v">2.5%</span></label>
+          <input type="range" id="pf_rate" min="0.5" max="6" step="0.1" value="2.5"></div>
+        <div class="field"><label>Monthly payment toward debt</label><input type="number" id="pf_pay" value="6000"></div>
+        <div class="field"><label>Expected SIP annual return <span class="val mono" id="pf_sipret_v">11%</span></label>
+          <input type="range" id="pf_sipret" min="4" max="20" step="0.5" value="11"></div>
+      </div>
+      <div class="result-panel">
+        <div class="result-hero"><div class="tag">Debt-free in</div><div class="big mono" id="pf_out_months">—</div></div>
+        <div class="result-row"><span class="label">Total interest paid</span><span class="amount" id="pf_out_interest">₹0</span></div>
+        <div id="pf_verdict_slot"></div>
+        <div class="schedule-wrap">
+          <table class="schedule">
+            <thead><tr><th>Mo</th><th>Interest</th><th>Balance after</th></tr></thead>
+            <tbody id="pf_schedule_body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<footer>
+  <div class="disclaimer">FinClear is an educational planning tool built for the Eureka! Pitching Competition. Figures are illustrative estimates based on standard formulas — not licensed financial, tax, or investment advice. Always verify with a qualified advisor before acting.</div>
+  Built with Java-grade logic, running entirely in your browser.
+</footer>
+
+<script>
+const inr = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const pct = n => n.toFixed(1) + '%';
+
+// ---- Tabs ----
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>jumpTo(btn.dataset.tab));
+});
+function jumpTo(id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('.tool').forEach(t=>t.classList.toggle('active', t.id===id));
+  document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ---- SIP ----
+function calcSIP(){
+  const amt = +sip_amt.value, ret = +sip_ret.value, yrs = +sip_yrs.value, step = +sip_step.value;
+  sip_amt_v.textContent = inr(amt);
+  sip_ret_v.textContent = ret + '%';
+  sip_yrs_v.textContent = yrs;
+  sip_step_v.textContent = step + '%';
+
+  const monthlyRate = ret/100/12;
+  let invested = 0, fv = 0, monthlyAmt = amt;
+  for(let y=0;y<yrs;y++){
+    for(let m=0;m<12;m++){
+      fv = fv*(1+monthlyRate) + monthlyAmt;
+      invested += monthlyAmt;
+    }
+    monthlyAmt = monthlyAmt * (1+step/100);
+  }
+  sip_out_mat.textContent = inr(fv);
+  sip_out_inv.textContent = inr(invested);
+  sip_out_gain.textContent = inr(fv-invested);
+}
+['sip_amt','sip_ret','sip_yrs','sip_step'].forEach(id=>document.getElementById(id).addEventListener('input', calcSIP));
+
+// ---- SWP ----
+function calcSWP(){
+  const corp = +swp_corp.value, wd = +swp_wd.value, ret = +swp_ret.value;
+  swp_corp_v.textContent = inr(corp);
+  swp_wd_v.textContent = inr(wd);
+  swp_ret_v.textContent = ret + '%';
+
+  const monthlyRate = ret/100/12;
+  let balance = corp, months = 0, totalWithdrawn = 0;
+  while(balance > 0 && months < 1200){
+    balance = balance*(1+monthlyRate) - wd;
+    totalWithdrawn += wd;
+    months++;
+    if(balance <= 0){ break; }
+  }
+  if(months>=1200){
+    swp_out_years.textContent = "50+ yrs";
+  } else {
+    const y = Math.floor(months/12), m = months%12;
+    swp_out_years.textContent = y+"y "+m+"m";
+  }
+  swp_out_total.textContent = inr(totalWithdrawn);
+  swp_out_growth.textContent = inr(Math.max(0,totalWithdrawn-corp));
+}
+['swp_corp','swp_wd','swp_ret'].forEach(id=>document.getElementById(id).addEventListener('input', calcSWP));
+
+// ---- ROI ----
+function calcROI(){
+  const inv = +roi_in.value || 0, out = +roi_out.value || 0, yrs = +roi_yrs.value || 0.0001;
+  const abs = ((out-inv)/inv)*100;
+  const cagr = (Math.pow(out/inv, 1/yrs) - 1) * 100;
+  roi_out_cagr.textContent = pct(cagr);
+  roi_out_abs.textContent = pct(abs);
+  roi_out_profit.textContent = inr(out-inv);
+}
+['roi_in','roi_out','roi_yrs'].forEach(id=>document.getElementById(id).addEventListener('input', calcROI));
+
+// ---- Income Tax (New Regime FY 2025-26, simplified slabs) ----
+function calcTax(){
+  let income = +tax_income.value || 0;
+  const standardDeduction = 75000;
+  let taxable = Math.max(0, income - standardDeduction);
+  const slabs = [
+    [400000, 0],
+    [400000, 0.05],
+    [400000, 0.10],
+    [400000, 0.15],
+    [400000, 0.20],
+    [400000, 0.25],
+    [Infinity, 0.30]
+  ];
+  let remaining = taxable, tax = 0;
+  for(const [width, rate] of slabs){
+    const chunk = Math.min(width, remaining);
+    if(chunk<=0) break;
+    tax += chunk*rate;
+    remaining -= chunk;
+  }
+  // Section 87A rebate: taxable income up to 12L -> zero tax (new regime, FY25-26)
+  if(taxable <= 1200000) tax = 0;
+  const cess = tax*0.04;
+  const totalTax = tax+cess;
+  tax_out_amt.textContent = inr(totalTax);
+  tax_out_rate.textContent = income>0 ? pct((totalTax/income)*100) : '0%';
+  tax_out_inhand.textContent = inr(income-totalTax);
+}
+tax_income.addEventListener('input', calcTax);
+
+// ---- Tax Saving Advisor ----
+function calcTaxSave(){
+  const c80c = Math.max(0, 150000 - (+ts_80c.value||0));
+  const c80d = Math.max(0, 25000 - (+ts_80d.value||0));
+  const cnps = Math.max(0, 50000 - (+ts_nps.value||0));
+  ts_out_80c.textContent = inr(c80c);
+  ts_out_80d.textContent = inr(c80d);
+  ts_out_nps.textContent = inr(cnps);
+  ts_out_total.textContent = inr(c80c+c80d+cnps);
+}
+['ts_80c','ts_80d','ts_nps'].forEach(id=>document.getElementById(id).addEventListener('input', calcTaxSave));
+
+// ---- Debt to Income ----
+function calcDTI(){
+  const income = +dti_income.value || 1;
+  const debt = +dti_debt.value || 0;
+  const ratio = (debt/income)*100;
+  dti_out_ratio.textContent = pct(ratio);
+  let verdict, stampText, stampClass='';
+  if(ratio < 20){
+    verdict = "Healthy. Debt is a manageable slice of your income — safe to keep investing alongside repayment.";
+    stampText = "HEALTHY";
+  } else if(ratio < 35){
+    verdict = "Manageable, but tight. Consider trimming discretionary spend to free up faster repayment.";
+    stampText = "WATCH";
+  } else {
+    verdict = "High. Over a third of your income is going to debt — prioritise payoff over new investments until this drops.";
+    stampText = "ACT NOW";
+    stampClass = 'warn';
+  }
+  dti_verdict_slot.innerHTML = `<div class="verdict ${ratio<35?'good':'warn'}">${verdict}</div>`;
+  const stampEl = document.getElementById('dti_stamp');
+  stampEl.textContent = stampText;
+  stampEl.className = 'stamp' + (stampClass?' warn':'');
+}
+['dti_income','dti_debt'].forEach(id=>document.getElementById(id).addEventListener('input', calcDTI));
+
+// ---- Debt Payoff Planner ----
+function calcPayoff(){
+  const rate = +pf_rate.value;
+  pf_rate_v.textContent = rate + '%';
+  const sipRet = +pf_sipret.value;
+  pf_sipret_v.textContent = sipRet + '%';
+
+  let balance = +pf_debt.value || 0;
+  const pay = +pf_pay.value || 1;
+  const monthlyRate = rate/100;
+
+  let months=0, totalInterest=0, rows='';
+  while(balance>0 && months<600){
+    const interest = balance*monthlyRate;
+    totalInterest += interest;
+    balance = balance + interest - pay;
+    months++;
+    const paidThis = balance<0 ? pay+balance : pay;
+    rows += `<tr><td>${months}</td><td>${inr(interest)}</td><td>${inr(Math.max(0,balance))}</td></tr>`;
+    if(balance<=0){ balance=0; break; }
+  }
+  pf_out_months.textContent = months>=600 ? "600+ mo" : months + " mo";
+  pf_out_interest.textContent = inr(totalInterest);
+  pf_schedule_body.innerHTML = rows;
+
+  const annualDebtCost = rate*12;
+  let verdict;
+  if(annualDebtCost > sipRet+2){
+    verdict = `<div class="verdict warn">Your debt costs ~${annualDebtCost.toFixed(1)}%/yr — well above your expected ${sipRet}% SIP return. Prioritise clearing this debt before increasing investment amounts.</div>`;
+  } else if (annualDebtCost > sipRet){
+    verdict = `<div class="verdict warn">Debt cost (~${annualDebtCost.toFixed(1)}%/yr) still edges out your expected return (${sipRet}%). Keep debt payoff the priority.</div>`;
+  } else {
+    verdict = `<div class="verdict good">Debt cost (~${annualDebtCost.toFixed(1)}%/yr) is below your expected return (${sipRet}%). Reasonable to keep investing in parallel.</div>`;
+  }
+  pf_verdict_slot.innerHTML = verdict;
+}
+['pf_debt','pf_rate','pf_pay','pf_sipret'].forEach(id=>document.getElementById(id).addEventListener('input', calcPayoff));
+
+// init all
+calcSIP(); calcSWP(); calcROI(); calcTax(); calcTaxSave(); calcDTI(); calcPayoff();
+</script>
+
+</body>
+</html>
